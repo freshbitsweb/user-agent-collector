@@ -1,0 +1,30 @@
+{
+    "name": "freshbitsweb/user-agent-collector",
+    "description": "Collect your Laravel 5 site visitor's user agent in a database table",
+    "require": {
+        "php": ">=7.0",
+        "illuminate/support": "^5.5",
+        "illuminate/database": "^5.5",
+        "nesbot/carbon": "~1.20",
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Gaurav Makhecha",
+            "email": "info@freshbits.in"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Freshbitsweb\\UserAgentCollector\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Freshbitsweb\\UserAgentCollector\\UserAgentCollectorServiceProvider"
+            ]
+        }
+    }
+}
