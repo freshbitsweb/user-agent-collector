@@ -22,19 +22,44 @@ class UserAgentCollector
         return $next($request);
     }
 
+    /**
+     * Makes an entry in the database after response is sent to the client
+     *
+     * @return void
+     */
     public function terminate($request, $response)
     {
-        // If the request doesn't contain any cookies, it means device is visiting us for the first time
-        // We avoid requests with prefixes like /api, /admin, etc.
-        if (empty($request->cookie()) && empty(Route::current()->getPrefix())) {
-            // Developer may not have run the migrations
-            if (Schema::hasTable('visitor_user_agents')) {
-                DB::table('visitor_user_agents')->insert([
-                    'user_agent' => $request->header('user-agent'),
-                    'ip_address' => $request->ip(),
-                    'created_at' => new Carbon,
-                ]);
-            }
+        if ($this->requestShouldBeRecorded($request)) {
+            DB::table('visitor_user_agents')->insert([
+                'user_agent' => $request->header('user-agent'),
+                'ip_address' => $request->ip(),
+                'request_url' => $request->url(),
+                'created_at' => new Carbon,
+            ]);
         }
+    }
+
+    /**
+     * Decides weather user agent of the request should be recorded or not
+     *
+     * @param \Illuminate\Http\Request
+     * @return boolean
+     */
+    protected function requestShouldBeRecorded($request)
+    {
+        return
+            // If the request doesn't contain any cookies, it means device is visiting us for the first time
+            empty($request->cookie()) &&
+
+            // We avoid requests with prefixes like /api, /admin, etc.
+            ! empty(Route::current()) &&
+            empty(Route::current()->getPrefix()) &&
+
+            // Developer may not have run the migrations
+            Schema::hasTable('visitor_user_agents') &&
+
+            // Some requests like webhook/ipn do not contain user agents
+            ! empty($request->header('user-agent'))
+        ;
     }
 }

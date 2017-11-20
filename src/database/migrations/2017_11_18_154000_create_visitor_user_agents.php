@@ -17,6 +17,7 @@ class CreateVisitorUserAgents extends Migration
             $table->increments('id');
             $table->string('user_agent');
             $table->string('ip_address');
+            $table->string('request_url');
             $table->timestamp('created_at');
         });
     }
